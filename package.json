@@ -1,0 +1,17 @@
+{
+  "name": "com.brunomikoski.editorhistorypanel",
+  "displayName": "Unity Editor History Panel",
+  "version": "0.0.1",
+  "unity": "2018.4",
+  "description": "History navigation panel retained between sessions and with hotkeys",
+  "keywords": [
+    "editor"
+    ],
+  "category": "editor extensions",
+  "homepage": "https://github.com/badawe/UnityHistoryPanel",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/badawe/UnityHistoryPanel.git"
+  },
+  "bugs": "https://github.com/badawe/UnityHistoryPanel/issues"
+}
