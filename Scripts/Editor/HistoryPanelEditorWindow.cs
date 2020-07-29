@@ -231,12 +231,12 @@ namespace BrunoMikoski.EditorHistoryNavigation
             }
         }
 
-        [MenuItem("Window/Navigation History")]
+        [MenuItem("Tools/Open Navigation Panel")]
         private static void Init()
         {
             HistoryPanelEditorWindow window = (HistoryPanelEditorWindow) GetWindow(typeof(HistoryPanelEditorWindow));
             window.Show();
-            window.titleContent = new GUIContent("Navigation History");
+            window.titleContent = new GUIContent("Navigation Panel");
         }
         
     }
