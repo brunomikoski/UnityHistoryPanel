@@ -15,11 +15,12 @@ Photoshop like navigation panel for unity
 ## Features
 - Don't need to be focuses to get shortcuts, just open and keep with something, like inspector
 - Keep history between Editor / Playtime
-- Configure Hotkeys for back and forward (I'm using `Ctrl + =` and `Ctrl + -` like rider :D )
 
 
 ## How to use
- 1. Just open by `Tools/Open Open Navigation Panel` 
+ 1. Just open by `Tools/History/Open History` 
+ 2. I recommend setting up shortcuts between `Go Back` and `Go Forward` using the Unity Shortcut Menu:
+    ![wizard](/Documentation~/shortcuts-settings.png)
 
 
 ## System Requirements
