@@ -1,9 +1,36 @@
 # Unity Editor History panel
 
 
-[![openupm](https://img.shields.io/npm/v/com.brunomikoski.editorhistorypanel?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.brunomikoski.editorhistorypanel/) [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/badawe/PresetManager/blob/develop/LICENSE)
+<p align="center">
+    <a href="https://github.com/brunomikoski/UnityHistoryPanel/blob/master/LICENSE.md">
+		<img alt="GitHub license" src ="https://img.shields.io/github/license/brunomikoski/UnityHistoryPanel" />
+	</a>
 
-![](https://img.shields.io/github/followers/brunomikoski?label=Follow&style=social) ![](https://img.shields.io/twitter/follow/brunomikoski?style=social)
+</p> 
+<p align="center">
+    <a href="https://openupm.com/packages/com.brunomikoski.editorhistorypanel/">
+        <img src="https://img.shields.io/npm/v/com.brunomikoski.editorhistorypanel?label=openupm&amp;registry_uri=https://package.openupm.com" />
+    </a>
+
+  <a href="https://github.com/brunomikoski/UnityHistoryPanel/issues">
+     <img alt="GitHub issues" src ="https://img.shields.io/github/issues/brunomikoski/UnityHistoryPanel" />
+  </a>
+
+  <a href="https://github.com/brunomikoski/UnityHistoryPanel/pulls">
+   <img alt="GitHub pull requests" src ="https://img.shields.io/github/issues-pr/brunomikoski/UnityHistoryPanel" />
+  </a>
+
+  <img alt="GitHub last commit" src ="https://img.shields.io/github/last-commit/brunomikoski/UnityHistoryPanel" />
+</p>
+
+<p align="center">
+    	<a href="https://github.com/brunomikoski">
+        	<img alt="GitHub followers" src="https://img.shields.io/github/followers/brunomikoski?style=social">
+	</a>	
+	<a href="https://twitter.com/brunomikoski">
+		<img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/brunomikoski?style=social">
+	</a>
+</p>
 
 
 Photoshop like navigation panel for unity
@@ -27,23 +54,38 @@ Photoshop like navigation panel for unity
 Unity 2018.4.0 or later versions
 
 
-## Installation
+## How to install
 
-### OpenUPM
-The package is available on the [openupm registry](https://openupm.com). It's recommended to install it via [openupm-cli](https://github.com/openupm/openupm-cli).
+<details>
+<summary>Add from OpenUPM <em>| via scoped registry, recommended</em></summary>
 
-```
-openupm add com.brunomikoski.editorhistorypanel
-```
+This package is available on OpenUPM: https://openupm.com/packages/com.brunomikoski.editorhistorypanel
 
-### Manifest
-You can also install via git URL by adding this entry in your **manifest.json**
-```
-"com.brunomikoski.editorhistorypanel": "https://github.com/badawe/UnityHistoryPanel.git"
-```
+To add it the package to your project:
 
-### Unity Package Manager
-```
-from Window->Package Manager, click on the + sign and Add from git: https://github.com/badawe/UnityHistoryPanel.git
-```
+- open `Edit/Project Settings/Package Manager`
+- add a new Scoped Registry:
+  ```
+  Name: OpenUPM
+  URL:  https://package.openupm.com/
+  Scope(s): com.brunomikoski
+  ```
+- click <kbd>Save</kbd>
+- open Package Manager
+- click <kbd>+</kbd>
+- select <kbd>Add from Git URL</kbd>
+- paste `com.brunomikoski.editorhistorypanel`
+- click <kbd>Add</kbd>
+</details>
 
+<details>
+<summary>Add from GitHub | <em>not recommended, no updates :( </em></summary>
+
+You can also add it directly from GitHub on Unity 2019.4+. Note that you won't be able to receive updates through Package Manager this way, you'll have to update manually.
+
+- open Package Manager
+- click <kbd>+</kbd>
+- select <kbd>Add from Git URL</kbd>
+- paste `https://github.com/brunomikoski/Animation-Sequencer.git`
+- click <kbd>Add</kbd>
+</details>

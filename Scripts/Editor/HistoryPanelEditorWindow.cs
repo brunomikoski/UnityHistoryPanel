@@ -50,6 +50,9 @@ namespace BrunoMikoski.EditorHistoryNavigation
                         SelectionData selectionData =
                             HistoryPanelCore.history.SelectionData[i];
 
+                        if (!selectionData.IsValid)
+                            continue;
+                        
                         DrawSelectionData(selectionData, i, HistoryPanelCore.history.PointInTime);
                     }
 
