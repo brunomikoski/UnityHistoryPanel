@@ -2,9 +2,7 @@
     "name": "BrunoMikoski.HistoryPanel",
     "references": [],
     "includePlatforms": [
-        "Editor",
-        "macOSStandalone",
-        "WindowsStandalone64"
+        "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
