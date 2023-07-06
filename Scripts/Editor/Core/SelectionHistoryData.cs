@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace BrunoMikoski.EditorHistoryNavigation
+namespace BrunoMikoski.SelectionHistory
 {
     [Serializable]
-    internal class History
+    internal class SelectionHistoryData
     {
         [SerializeField]
         private List<SelectionData> selectionData = new List<SelectionData>();
@@ -32,7 +32,7 @@ namespace BrunoMikoski.EditorHistoryNavigation
             if (pointInTime < selectionData.Count - 1)
                 selectionData.RemoveRange(pointInTime, selectionData.Count - 1 - pointInTime);
             selectionData.Add(item);
-            if (selectionData.Count > HistoryPanelCore.MaximumHistoryItems)
+            if (selectionData.Count > SelectionHistoryToolbar.MaximumHistoryItems)
                 selectionData.RemoveAt(0);
             pointInTime = selectionData.Count - 1;
         }
