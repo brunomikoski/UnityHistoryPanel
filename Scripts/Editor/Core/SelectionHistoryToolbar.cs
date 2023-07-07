@@ -10,7 +10,6 @@ namespace BrunoMikoski.SelectionHistory
     internal class SelectionHistoryToolbar
     {
         private static ToolbarMenu HISTORY_SELECTION_MENU;
-        private static bool HISTORY_SELECTION_MENU_OPEN;
 
         private static readonly string HISTORY_STORAGE_KEY = Application.productName + "EditorHistoryKey";
         private const string MAX_HISTORY_ITEMS_KEY = "MaxHistoryItemsKey";
@@ -138,8 +137,6 @@ namespace BrunoMikoski.SelectionHistory
 
         private static void ShowHistorySelectionMenu()
         {
-            HISTORY_SELECTION_MENU_OPEN = true;
-
             HISTORY_SELECTION_MENU.menu.MenuItems().Clear();
 
             for (int i = 0; i < History.SelectionData.Count; i++)
@@ -159,7 +156,6 @@ namespace BrunoMikoski.SelectionHistory
                 HISTORY_SELECTION_MENU.menu.AppendAction(selectionData.DisplayName, a =>
                 {
                     SetPointInTime(targetIndex);
-                    HISTORY_SELECTION_MENU_OPEN = false;
                 }, a => status);
             }
 
@@ -168,7 +164,6 @@ namespace BrunoMikoski.SelectionHistory
             HISTORY_SELECTION_MENU.menu.AppendAction("Clear History", a =>
             {
                 ClearHistory();
-                HISTORY_SELECTION_MENU_OPEN = false;
             }, a => DropdownMenuAction.Status.Normal);
 
             HISTORY_SELECTION_MENU.ShowMenu();
