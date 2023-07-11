@@ -1,12 +1,12 @@
 {
   "name": "com.brunomikoski.editorhistorypanel",
-  "displayName": "Editor History Panel",
+  "displayName": "Selection History",
   "version": "0.1.1",
   "unity": "2022.3",
   "description": "History navigation panel retained between sessions and with hotkeys",
   "keywords": [
     "editor"
-    ],
+  ],
   "category": "editor extensions",
   "homepage": "https://github.com/brunomikoski/UnityHistoryPanel",
   "repository": {
