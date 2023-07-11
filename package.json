@@ -1,8 +1,8 @@
 {
   "name": "com.brunomikoski.editorhistorypanel",
   "displayName": "Editor History Panel",
-  "version": "0.1.0",
-  "unity": "2018.4",
+  "version": "0.1.1",
+  "unity": "2021.0",
   "description": "History navigation panel retained between sessions and with hotkeys",
   "keywords": [
     "editor"
