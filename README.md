@@ -33,11 +33,6 @@
 </p>
 
 
-Photoshop like navigation panel for unity
-
-![wizard](/Documentation~/history-panel.gif)
-
-
 
 ## Features
 - Don't need to be focuses to get shortcuts, just open and keep with something, like inspector
