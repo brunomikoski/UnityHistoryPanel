@@ -31,9 +31,12 @@ namespace BrunoMikoski.SelectionHistory
                 return;
             if (pointInTime < selectionData.Count - 1)
                 selectionData.RemoveRange(pointInTime, selectionData.Count - 1 - pointInTime);
+            
             selectionData.Add(item);
+            
             if (selectionData.Count > SelectionHistoryToolbar.MaximumHistoryItems)
                 selectionData.RemoveAt(0);
+            
             pointInTime = selectionData.Count - 1;
         }
 
@@ -41,6 +44,7 @@ namespace BrunoMikoski.SelectionHistory
         {
             if (pointInTime == 0)
                 return;
+            
             for (int i = pointInTime - 1; i >= 0; i--)
             {
                 SelectionData data = selectionData[i];
@@ -59,6 +63,7 @@ namespace BrunoMikoski.SelectionHistory
                 return;
             if (pointInTime + 1 > selectionData.Count - 1)
                 return;
+            
             pointInTime++;
             movingInHistory = true;
             selectionData[pointInTime].Select();

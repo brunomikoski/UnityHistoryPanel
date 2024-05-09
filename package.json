@@ -1,7 +1,7 @@
 {
   "name": "com.brunomikoski.editorhistorypanel",
   "displayName": "Selection History",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "unity": "2022.3",
   "description": "History navigation panel retained between sessions and with hotkeys",
   "keywords": [
