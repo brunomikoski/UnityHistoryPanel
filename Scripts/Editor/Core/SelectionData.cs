@@ -16,18 +16,18 @@ namespace BrunoMikoski.SelectionHistory
         [SerializeField]
         private List<int> instanceIDs = new List<int>();
 
-        private string m_displayName;
+        private string displayName;
         public string DisplayName
         {
 	        get
 	        {
-		        if (string.IsNullOrEmpty(m_displayName)) 
+		        if (string.IsNullOrEmpty(displayName)) 
 		        {
-			        m_displayName = string.Join(", ", GetSelectionObjects().Where(o => o != null).Select(o => o.name));
-			        if (m_displayName.Length > 50)
-				        m_displayName = m_displayName.Substring(0, 47) + "...";
+			        displayName = string.Join(", ", GetSelectionObjects().Where(o => o != null).Select(o => o.name));
+			        if (displayName.Length > 50)
+				        displayName = displayName.Substring(0, 47) + "...";
 		        }
-		        return m_displayName;
+		        return displayName;
 	        }
         }
 
@@ -35,7 +35,7 @@ namespace BrunoMikoski.SelectionHistory
 
         public SelectionData(Object[] objects)
         {
-            m_displayName = string.Empty;
+            displayName = string.Empty;
             for (int i = 0; i < objects.Length; i++)
             {
                 Object o = objects[i];
