@@ -50,6 +50,9 @@ namespace BrunoMikoski.SelectionHistory
 
         static SelectionHistoryToolbar()
         {
+            if (Application.isBatchMode)
+                return;
+
             EditorApplication.delayCall += Initialize;
         }
 
