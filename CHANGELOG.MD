@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0]
+## Changed
+- Added the new Favorites  feature
+
 ## [0.2.2]
 ## Changed 
 - Disabled Initialization on Batch mode.
@@ -15,8 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Removed old image from readme
 
-
-
 ## [0.2.0]
 ### Changed
 - Changed initialization of the toolbar to improve performance
@@ -27,14 +29,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Forward button now also has right click support
 
-
-
 ## [0.1.1]
 ### Changed
 - Changed implementation
 
 ## [0.1.0]
-### Changed~~~~
+### Changed
 - Fixed asmdef to use only `UnityEditor`
 - Fixed null check before displaying an invalid item
 
@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added 
  - First initial working version
 
+[0.3.0]: https://github.com/brunomikoski/UnityHistoryPanel/releases/tag/v0.3.0~~~~
 [0.2.2]: https://github.com/brunomikoski/UnityHistoryPanel/releases/tag/v0.2.2
 [0.2.1]: https://github.com/brunomikoski/UnityHistoryPanel/releases/tag/v0.2.1
 [0.2.0]: https://github.com/brunomikoski/UnityHistoryPanel/releases/tag/v0.2.0
