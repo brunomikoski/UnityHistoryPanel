@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace BrunoMikoski.SelectionHistory
 {
@@ -21,7 +22,9 @@ namespace BrunoMikoski.SelectionHistory
                 style =
                 {
                     flexGrow = 0,
-                    flexDirection = FlexDirection.Row
+                    flexDirection = FlexDirection.Row,
+                    flexShrink = 1,
+                    minWidth = 0
                 }
             };
 
@@ -39,41 +42,16 @@ namespace BrunoMikoski.SelectionHistory
             });
 
             parent.Add(favoritesDropdown);
-
-            UnityMainToolbarUtility.AddCustom(UnityMainToolbarUtility.TargetContainer.Left, UnityMainToolbarUtility.Side.Right, parent);
+            UnityMainToolbarUtility.AddCustom(UnityMainToolbarUtility.TargetContainer.Left, UnityMainToolbarUtility.Side.Right, parent, 4);
         }
 
         private static void ShowAssetsMenu(ToolbarMenu menu)
         {
             Rect rect = menu.worldBound;
-            GenericMenu genericMenu = new GenericMenu();
-            List<Object> manual = FavoritesManager.GetManualFavorites();
-            foreach (Object asset in manual)
-            {
-                Object currentAsset = asset;
-                GUIContent content = new GUIContent(currentAsset.name, EditorGUIUtility.ObjectContent(currentAsset, currentAsset.GetType()).image);
-                genericMenu.AddItem(content, false, () =>
-                {
-                    Selection.activeObject = currentAsset;
-                    EditorGUIUtility.PingObject(currentAsset);
-                });
-            }
-            if (manual.Count > 0)
-                genericMenu.AddSeparator("");
-            List<Object> learned = FavoritesManager.GetLearnedFavorites();
-            foreach (Object asset in learned)
-            {
-                if (FavoritesManager.IsManualFavorite(asset))
-                    continue;
-                Object currentAsset = asset;
-                GUIContent content = new GUIContent(currentAsset.name, EditorGUIUtility.ObjectContent(currentAsset, currentAsset.GetType()).image);
-                genericMenu.AddItem(content, false, () =>
-                {
-                    Selection.activeObject = currentAsset;
-                    EditorGUIUtility.PingObject(currentAsset);
-                });
-            }
-            genericMenu.DropDown(rect);
+            AdvancedDropdownState state = new AdvancedDropdownState();
+            FavoritesAdvancedDropdown dropdown = new FavoritesAdvancedDropdown(state);
+            dropdown.SetFavorites(FavoritesManager.GetManualFavorites(), FavoritesManager.GetLearnedFavorites());
+            dropdown.Show(rect);
         }
 
         private static void ApplyToolbarStyle(VisualElement element)

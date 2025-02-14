@@ -92,7 +92,7 @@ namespace BrunoMikoski.SelectionHistory
 
 
             UnityMainToolbarUtility.AddCustom(UnityMainToolbarUtility.TargetContainer.Left,
-                UnityMainToolbarUtility.Side.Right, parent);
+                UnityMainToolbarUtility.Side.Right, parent, 3);
 
             EditorApplication.playModeStateChanged += EditorApplicationOnPlayModeStateChanged;
             AssemblyReloadEvents.beforeAssemblyReload += SaveHistory;
