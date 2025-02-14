@@ -10,7 +10,6 @@ namespace BrunoMikoski.SelectionHistory
     internal class LearnedFavorite
     {
         public string globalId;
-        public float totalTime;
         public int selectionCount;
     }
 
@@ -32,21 +31,38 @@ namespace BrunoMikoski.SelectionHistory
         private static string LearnedKey = Application.productName + "_FavoritesLearned";
         private static List<string> manualFavorites = new();
         private static Dictionary<string, LearnedFavorite> learnedFavorites = new();
-        private static double lastSelectionTime;
+        private static bool manualFavoritesLoaded = false;
+        private static bool learnedFavoritesLoaded = false;
         private static string lastSelectionGlobalId;
 
         static FavoritesManager()
         {
-            LoadManualFavorites();
-            LoadLearnedFavorites();
-            lastSelectionTime = EditorApplication.timeSinceStartup;
             Selection.selectionChanged += OnSelectionChanged;
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        }
+
+        private static void EnsureManualFavoritesLoaded()
+        {
+            if (!manualFavoritesLoaded)
+            {
+                LoadManualFavorites();
+                manualFavoritesLoaded = true;
+            }
+        }
+
+        private static void EnsureLearnedFavoritesLoaded()
+        {
+            if (!learnedFavoritesLoaded)
+            {
+                LoadLearnedFavorites();
+                learnedFavoritesLoaded = true;
+            }
         }
 
         private static void OnSelectionChanged()
         {
-            double now = EditorApplication.timeSinceStartup;
-            double delta = now - lastSelectionTime;
+            EnsureLearnedFavoritesLoaded();
+
             if (!string.IsNullOrEmpty(lastSelectionGlobalId))
             {
                 if (!learnedFavorites.TryGetValue(lastSelectionGlobalId, out LearnedFavorite lf))
@@ -54,12 +70,10 @@ namespace BrunoMikoski.SelectionHistory
                     lf = new LearnedFavorite
                     {
                         globalId = lastSelectionGlobalId,
-                        totalTime = 0,
                         selectionCount = 0
                     };
                     learnedFavorites[lastSelectionGlobalId] = lf;
                 }
-                lf.totalTime += (float)delta;
             }
 
             Object current = Selection.activeObject;
@@ -72,21 +86,25 @@ namespace BrunoMikoski.SelectionHistory
                     currentLf = new LearnedFavorite
                     {
                         globalId = currentId,
-                        totalTime = 0,
                         selectionCount = 0
                     };
                     learnedFavorites[currentId] = currentLf;
                 }
                 currentLf.selectionCount++;
             }
+        }
 
-            lastSelectionTime = now;
-            SaveLearnedFavorites();
+        private static void OnPlayModeStateChanged(PlayModeStateChange state)
+        {
+            if (state is PlayModeStateChange.ExitingPlayMode or PlayModeStateChange.ExitingEditMode)
+                SaveLearnedFavorites();
         }
 
         public static void AddManualFavorite(Object obj)
         {
-            if (obj == null) return;
+            if (obj == null)
+                return;
+            EnsureManualFavoritesLoaded();
             string id = GlobalObjectId.GetGlobalObjectIdSlow(obj).ToString();
             if (!manualFavorites.Contains(id))
             {
@@ -97,7 +115,9 @@ namespace BrunoMikoski.SelectionHistory
 
         public static void RemoveManualFavorite(Object obj)
         {
-            if (obj == null) return;
+            if (obj == null)
+                return;
+            EnsureManualFavoritesLoaded();
             string id = GlobalObjectId.GetGlobalObjectIdSlow(obj).ToString();
             if (manualFavorites.Remove(id))
                 SaveManualFavorites();
@@ -107,32 +127,31 @@ namespace BrunoMikoski.SelectionHistory
         {
             if (obj == null)
                 return false;
+            EnsureManualFavoritesLoaded();
             string id = GlobalObjectId.GetGlobalObjectIdSlow(obj).ToString();
             return manualFavorites.Contains(id);
         }
 
         public static List<Object> GetManualFavorites()
         {
+            EnsureManualFavoritesLoaded();
             List<Object> list = new();
             if (manualFavorites.Count == 0)
                 return list;
             GlobalObjectId[] gids = new GlobalObjectId[manualFavorites.Count];
             for (int i = 0; i < manualFavorites.Count; i++)
-            {
                 GlobalObjectId.TryParse(manualFavorites[i], out gids[i]);
-            }
             Object[] objs = new Object[manualFavorites.Count];
             GlobalObjectId.GlobalObjectIdentifiersToObjectsSlow(gids, objs);
             foreach (Object obj in objs)
-            {
                 if (obj != null)
                     list.Add(obj);
-            }
             return list;
         }
 
         public static List<Object> GetLearnedFavorites()
         {
+            EnsureLearnedFavoritesLoaded();
             List<LearnedFavorite> lfs = new(learnedFavorites.Values);
             lfs.Sort((a, b) => b.selectionCount.CompareTo(a.selectionCount));
             if (lfs.Count > 20)
@@ -142,16 +161,12 @@ namespace BrunoMikoski.SelectionHistory
                 return list;
             GlobalObjectId[] gids = new GlobalObjectId[lfs.Count];
             for (int i = 0; i < lfs.Count; i++)
-            {
                 GlobalObjectId.TryParse(lfs[i].globalId, out gids[i]);
-            }
             Object[] objs = new Object[lfs.Count];
             GlobalObjectId.GlobalObjectIdentifiersToObjectsSlow(gids, objs);
             foreach (Object obj in objs)
-            {
                 if (obj != null)
                     list.Add(obj);
-            }
             return list;
         }
 
@@ -195,10 +210,8 @@ namespace BrunoMikoski.SelectionHistory
             {
                 learnedFavorites = new Dictionary<string, LearnedFavorite>();
                 foreach (LearnedFavorite lf in data.favorites)
-                {
                     if (!string.IsNullOrEmpty(lf.globalId))
                         learnedFavorites[lf.globalId] = lf;
-                }
             }
         }
     }
