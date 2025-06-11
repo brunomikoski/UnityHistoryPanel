@@ -22,7 +22,9 @@ namespace BrunoMikoski.SelectionHistory
 
         public static void AddCustom(TargetContainer container, Side side, VisualElement custom, int position)
         {
-            Initialize();
+            if (!Initialize())
+                return;
+            
             VisualElement containerElement;
             switch (container)
             {
@@ -44,7 +46,9 @@ namespace BrunoMikoski.SelectionHistory
 
         public static EditorToolbarButton AddButton(TargetContainer container, Side side, string name, Texture2D icon, Action<MouseUpEvent> callback)
         {
-            Initialize();
+            if (!Initialize())
+                return null;
+            
             EditorToolbarButton button = new EditorToolbarButton() { name = name, icon = icon };
             VisualElement containerElement;
             switch (container)
@@ -67,19 +71,21 @@ namespace BrunoMikoski.SelectionHistory
             return button;
         }
 
-        private static void Initialize()
+        private static bool Initialize()
         {
             if (initialized)
-                return;
+                return true;
             Object[] toolbars = Resources.FindObjectsOfTypeAll(ToolbarType);
             if (toolbars.Length == 0)
-                return;
+                return false;
+            
             Object toolbar = toolbars[0];
             FieldInfo rootField = toolbar.GetType().GetField("m_Root", BindingFlags.NonPublic | BindingFlags.Instance);
             rootVisualElement = rootField.GetValue(toolbar) as VisualElement;
             LEFT_ZONE_ROOT = rootVisualElement.Q<VisualElement>("ToolbarZoneLeftAlign");
             RIGHT_ZONE_ROOT = rootVisualElement.Q<VisualElement>("ToolbarZoneRightAlign");
             initialized = true;
+            return true;
         }
     }
 }
