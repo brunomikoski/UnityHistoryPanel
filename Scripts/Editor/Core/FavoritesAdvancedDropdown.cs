@@ -29,43 +29,61 @@ namespace BrunoMikoski.SelectionHistory
         protected override AdvancedDropdownItem BuildRoot()
         {
             AdvancedDropdownItem root = new AdvancedDropdownItem("Favorites");
+
             if (manualFavorites != null && manualFavorites.Count > 0)
             {
-                foreach (var asset in manualFavorites)
-                {
-                    var item = new FavoritesAdvancedDropdownItem(asset.name, asset);
-                    root.AddChild(item);
-                }
-            }
-            if ((manualFavorites != null && manualFavorites.Count > 0) &&
-                (learnedFavorites != null && learnedFavorites.Count > 0))
-            {
-                root.AddSeparator();
+                foreach (Object asset in manualFavorites)
+                    root.AddChild(new FavoritesAdvancedDropdownItem(asset.name, asset));
             }
 
             if (learnedFavorites != null && learnedFavorites.Count > 0)
             {
-                foreach (var asset in learnedFavorites)
-                {
-                    var item = new FavoritesAdvancedDropdownItem(asset.name, asset);
-                    root.AddChild(item);
-                }
+                if (manualFavorites != null && manualFavorites.Count > 0)
+                    root.AddSeparator();
+
+                foreach (Object asset in learnedFavorites)
+                    root.AddChild(new FavoritesAdvancedDropdownItem(asset.name, asset));
             }
+
             return root;
         }
 
         public void SetFavorites(List<Object> manual, List<Object> learned)
         {
-            manualFavorites = manual;
-            learnedFavorites = learned;
+            manualFavorites = manual ?? new List<Object>();
+            learnedFavorites = new List<Object>();
+
+            HashSet<int> manualIDs = new HashSet<int>();
+            foreach (Object m in manualFavorites)
+                manualIDs.Add(m.GetInstanceID());
+
+            foreach (Object l in learned)
+                if (l != null && !manualIDs.Contains(l.GetInstanceID()))
+                    learnedFavorites.Add(l);
         }
 
         protected override void ItemSelected(AdvancedDropdownItem item)
         {
-            if (item is FavoritesAdvancedDropdownItem favItem)
+            if (!(item is FavoritesAdvancedDropdownItem fav))
+                return;
+
+            Object asset = fav.Asset;
+
+            if (asset == null)
+                return;
+
+            Selection.activeObject = asset;
+            EditorGUIUtility.PingObject(asset);
+
+            if (asset is SceneAsset)
             {
-                Selection.activeObject = favItem.Asset;
-                EditorGUIUtility.PingObject(favItem.Asset);
+                string path = AssetDatabase.GetAssetPath(asset);
+                if (!string.IsNullOrEmpty(path))
+                    UnityEditor.SceneManagement.EditorSceneManager.OpenScene(path);
+            }
+            else if (PrefabUtility.IsPartOfPrefabAsset(asset))
+            {
+                AssetDatabase.OpenAsset(asset);
             }
         }
     }

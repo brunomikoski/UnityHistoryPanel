@@ -37,8 +37,18 @@ namespace BrunoMikoski.SelectionHistory
 
             favoritesDropdown.RegisterCallback<MouseUpEvent>(e =>
             {
-                if (e.button == 0)
-                    ShowAssetsMenu(favoritesDropdown);
+                if (e.button != 0)
+                    return;
+
+                EditorApplication.delayCall += () =>
+                {
+                    Rect rect = favoritesDropdown.worldBound;
+                    AdvancedDropdownState state = new AdvancedDropdownState();
+                    FavoritesAdvancedDropdown dropdown = new FavoritesAdvancedDropdown(state);
+                    dropdown.SetFavorites(FavoritesManager.GetManualFavorites(),
+                        FavoritesManager.GetLearnedFavorites());
+                    dropdown.Show(rect);
+                };
             });
 
             parent.Add(favoritesDropdown);
