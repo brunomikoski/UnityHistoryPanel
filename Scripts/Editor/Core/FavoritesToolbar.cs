@@ -10,6 +10,9 @@ namespace BrunoMikoski.SelectionHistory
     [InitializeOnLoad]
     internal static class FavoritesToolbar
     {
+        private static bool pendingOpen;
+        private static Rect pendingRect;
+        private static readonly AdvancedDropdownState CACHED_STATE = new AdvancedDropdownState();
         static FavoritesToolbar()
         {
             EditorApplication.delayCall += Initialize;
@@ -40,19 +43,34 @@ namespace BrunoMikoski.SelectionHistory
                 if (e.button != 0)
                     return;
 
-                EditorApplication.delayCall += () =>
-                {
-                    Rect rect = favoritesDropdown.worldBound;
-                    AdvancedDropdownState state = new AdvancedDropdownState();
-                    FavoritesAdvancedDropdown dropdown = new FavoritesAdvancedDropdown(state);
-                    dropdown.SetFavorites(FavoritesManager.GetManualFavorites(),
-                        FavoritesManager.GetLearnedFavorites());
-                    dropdown.Show(rect);
-                };
+                pendingRect = favoritesDropdown.worldBound;
+                pendingOpen = true;
             });
 
             parent.Add(favoritesDropdown);
-            UnityMainToolbarUtility.AddCustom(UnityMainToolbarUtility.TargetContainer.Left, UnityMainToolbarUtility.Side.Right, parent, 4);
+
+            IMGUIContainer opener = new IMGUIContainer();
+            opener.style.width  = 0;
+            opener.style.height = 0;
+            opener.onGUIHandler = () =>
+            {
+                if (!pendingOpen)
+                    return;
+
+                pendingOpen = false;
+
+                Vector2 guiPos = GUIUtility.ScreenToGUIPoint(pendingRect.position);
+                Rect guiRect   = new Rect(guiPos.x, guiPos.y + pendingRect.height, pendingRect.width, 0f);
+                FavoritesAdvancedDropdown dropdown = new FavoritesAdvancedDropdown(CACHED_STATE);
+                dropdown.SetFavorites(FavoritesManager.GetManualFavorites(), FavoritesManager.GetLearnedFavorites());
+                
+                dropdown.Show(guiRect);
+            };
+            parent.Add(opener);
+
+            UnityMainToolbarUtility.AddCustom(UnityMainToolbarUtility.TargetContainer.Left,
+                UnityMainToolbarUtility.Side.Right,
+                parent, 4);
         }
 
         private static void ShowAssetsMenu(ToolbarMenu menu)
