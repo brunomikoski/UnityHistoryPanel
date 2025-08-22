@@ -3,7 +3,6 @@ using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Object = UnityEngine.Object;
 
 namespace BrunoMikoski.SelectionHistory
 {
@@ -13,6 +12,7 @@ namespace BrunoMikoski.SelectionHistory
         private static bool pendingOpen;
         private static Rect pendingRect;
         private static readonly AdvancedDropdownState CACHED_STATE = new AdvancedDropdownState();
+
         static FavoritesToolbar()
         {
             EditorApplication.delayCall += Initialize;
@@ -22,13 +22,7 @@ namespace BrunoMikoski.SelectionHistory
         {
             VisualElement parent = new VisualElement
             {
-                style =
-                {
-                    flexGrow = 0,
-                    flexDirection = FlexDirection.Row,
-                    flexShrink = 1,
-                    minWidth = 0
-                }
+                style = { flexGrow = 0, flexDirection = FlexDirection.Row, flexShrink = 1, minWidth = 0 }
             };
 
             ToolbarMenu favoritesDropdown = new ToolbarMenu
@@ -50,20 +44,18 @@ namespace BrunoMikoski.SelectionHistory
             parent.Add(favoritesDropdown);
 
             IMGUIContainer opener = new IMGUIContainer();
-            opener.style.width  = 0;
+            opener.style.width = 0;
             opener.style.height = 0;
             opener.onGUIHandler = () =>
             {
                 if (!pendingOpen)
                     return;
-
                 pendingOpen = false;
 
                 Vector2 guiPos = GUIUtility.ScreenToGUIPoint(pendingRect.position);
-                Rect guiRect   = new Rect(guiPos.x, guiPos.y + pendingRect.height, pendingRect.width, 0f);
+                Rect guiRect = new Rect(guiPos.x, guiPos.y + pendingRect.height, pendingRect.width, 0f);
                 FavoritesAdvancedDropdown dropdown = new FavoritesAdvancedDropdown(CACHED_STATE);
-                dropdown.SetFavorites(FavoritesManager.GetManualFavorites(), FavoritesManager.GetLearnedFavorites());
-                
+                dropdown.SetFavorites(FavoritesManager.GetManualFavoriteEntries(), FavoritesManager.GetLearnedFavorites());
                 dropdown.Show(guiRect);
             };
             parent.Add(opener);
@@ -71,15 +63,6 @@ namespace BrunoMikoski.SelectionHistory
             UnityMainToolbarUtility.AddCustom(UnityMainToolbarUtility.TargetContainer.Left,
                 UnityMainToolbarUtility.Side.Right,
                 parent, 4);
-        }
-
-        private static void ShowAssetsMenu(ToolbarMenu menu)
-        {
-            Rect rect = menu.worldBound;
-            AdvancedDropdownState state = new AdvancedDropdownState();
-            FavoritesAdvancedDropdown dropdown = new FavoritesAdvancedDropdown(state);
-            dropdown.SetFavorites(FavoritesManager.GetManualFavorites(), FavoritesManager.GetLearnedFavorites());
-            dropdown.Show(rect);
         }
 
         private static void ApplyToolbarStyle(VisualElement element)
