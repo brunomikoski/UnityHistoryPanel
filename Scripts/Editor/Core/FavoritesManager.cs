@@ -37,7 +37,6 @@ namespace BrunoMikoski.SelectionHistory
         public LearnedFavorite[] favorites;
     }
 
-    // ======================= Manager =======================
     internal static class FavoritesManager
     {
         private static string ManualKey = "FavoritesManual";
@@ -88,8 +87,7 @@ namespace BrunoMikoski.SelectionHistory
                 return;
 
             string currentId = GlobalObjectId.GetGlobalObjectIdSlow(current).ToString();
-            LearnedFavorite lf;
-            if (!learnedFavorites.TryGetValue(currentId, out lf))
+            if (!learnedFavorites.TryGetValue(currentId, out LearnedFavorite lf))
             {
                 lf = new LearnedFavorite
                 {
@@ -174,6 +172,24 @@ namespace BrunoMikoski.SelectionHistory
                 manualEntries.RemoveAt(idx);
                 SaveManualFavorites();
             }
+        }
+
+        public static bool RemoveManualFavoriteByGlobalId(string globalId)
+        {
+            if (string.IsNullOrEmpty(globalId))
+                return false;
+
+            EnsureManualFavoritesLoaded();
+
+            int idx = IndexOfManual(globalId);
+            if (idx >= 0)
+            {
+                manualEntries.RemoveAt(idx);
+                SaveManualFavorites();
+                return true;
+            }
+
+            return false;
         }
 
         public static bool IsManualFavorite(Object obj)

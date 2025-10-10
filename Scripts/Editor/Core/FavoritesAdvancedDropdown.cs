@@ -102,12 +102,18 @@ namespace BrunoMikoski.SelectionHistory
             Object target = TryResolve(fav.GlobalId);
             if (target == null)
             {
-                EnsureContainerLoaded(fav.ContainerPath, shift);
+                string dynamicPath = ComputeContainerPathFromGlobal(fav.GlobalId);
+                string pathToOpen = !string.IsNullOrEmpty(dynamicPath) ? dynamicPath : fav.ContainerPath;
+                EnsureContainerLoaded(pathToOpen, shift);
                 target = TryResolve(fav.GlobalId);
             }
 
             if (target == null)
+            {
+                // Clean up invalid manual favorite entries when the referenced object can no longer be resolved
+                FavoritesManager.RemoveManualFavoriteByGlobalId(fav.GlobalId);
                 return;
+            }
 
             if (shift)
                 OpenContainerForObject(target);
@@ -137,6 +143,11 @@ namespace BrunoMikoski.SelectionHistory
 
             if (path.EndsWith(".unity", StringComparison.OrdinalIgnoreCase))
             {
+                // Verify the scene asset exists before attempting to open it to avoid ArgumentException
+                SceneAsset sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
+                if (sceneAsset == null)
+                    return;
+
                 if (openSingle)
                     UnityEditor.SceneManagement.EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
                 UnityEditor.SceneManagement.OpenSceneMode mode = openSingle ? UnityEditor.SceneManagement.OpenSceneMode.Single : UnityEditor.SceneManagement.OpenSceneMode.Additive;
