@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+### Removed
+- **Recent Used** section: removed due to performance impact
+- **Frequently Used** filter: removed learned-favorites auto-tracking
+- Selection-change tracking: no longer listens to every selection change
+
 ## [0.3.5]
 ### Added
 - **Recent Used** section: last 15 selected items by recency, with dedicated filter

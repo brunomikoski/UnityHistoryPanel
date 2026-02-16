@@ -189,6 +189,6 @@
     margin-bottom: 2px;
 }
 
-#favorites-tips Label:last-child {
+#favorites-tips Label.tip-last {
     margin-bottom: 0;
 }

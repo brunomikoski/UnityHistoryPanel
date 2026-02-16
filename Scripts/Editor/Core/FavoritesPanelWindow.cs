@@ -11,8 +11,6 @@ namespace BrunoMikoski.SelectionHistory
     internal class FavoritesPanelWindow : EditorWindow
     {
         private const string ALL_FILTER = "All";
-        private const string RECENT_FILTER = "Recent";
-        private const string FREQUENT_FILTER = "Frequently Used";
         private const float MIN_WIDTH = 360f;
         private const float MIN_HEIGHT = 420f;
         private TwoPaneSplitView _splitView;
@@ -33,7 +31,7 @@ namespace BrunoMikoski.SelectionHistory
             public string PreLabel;
             public Object IconSource;
             public string TypeFilter;
-            public string Source; // "Manual", "Recent", "Frequent"
+            public string Source; // "Manual"
         }
 
         public static void ShowAtPosition(Rect? screenRect = null)
@@ -103,7 +101,7 @@ namespace BrunoMikoski.SelectionHistory
             _itemsList.selectionChanged += _ => { };
 
             _emptyState = new VisualElement { name = "favorites-empty-state" };
-            _emptyState.Add(new Label("No favorites yet.\nSelect assets in the Project or Hierarchy to build your Recent and Frequently Used lists.\nOr add manual favorites via right-click > Favorite."));
+            _emptyState.Add(new Label("No favorites yet.\nAdd manual favorites via right-click > Favorite."));
             _emptyState.style.display = DisplayStyle.None;
 
             _listContainer.Add(_itemsList);
@@ -117,7 +115,9 @@ namespace BrunoMikoski.SelectionHistory
 
             var tipsFooter = new VisualElement { name = "favorites-tips" };
             tipsFooter.Add(new Label("Shift+Click — Open scene/prefab • Double-click — Select • Click outside — Close"));
-            tipsFooter.Add(new Label("Ctrl+Shift+F — Open panel • Right-click > Favorite — Pin to favorites"));
+            var lastTip = new Label("Ctrl+Shift+F — Open panel • Right-click > Favorite — Pin to favorites");
+            lastTip.AddToClassList("tip-last");
+            tipsFooter.Add(lastTip);
             root.Add(tipsFooter);
 
             rootVisualElement.Add(root);
@@ -233,13 +233,10 @@ namespace BrunoMikoski.SelectionHistory
             _filterTypes.Add(ALL_FILTER);
 
             var manualEntries = FavoritesManager.GetManualFavoriteEntries();
-            var recentIds = FavoritesManager.GetRecentUsedIds();
-            var learnedFavorites = FavoritesManager.GetLearnedFavorites();
-            var learnedIds = FavoritesManager.GetLearnedFavoriteIds();
 
             var seenIds = new HashSet<string>();
 
-            void AddItem(FavoriteEntry entry, Object resolved, string label, string source)
+            void AddItem(FavoriteEntry entry, Object resolved, string label)
             {
                 if (seenIds.Contains(entry.globalId))
                     return;
@@ -256,55 +253,15 @@ namespace BrunoMikoski.SelectionHistory
                     PreLabel = entry.label,
                     IconSource = resolved,
                     TypeFilter = typeFilter,
-                    Source = source
+                    Source = "Manual"
                 });
             }
 
-            // 1. Manual (pinned) first
             foreach (var e in manualEntries)
             {
                 var resolved = TryResolve(e.globalId);
                 string label = !string.IsNullOrEmpty(e.label) ? e.label : BuildDisplayLabel(e, resolved);
-                AddItem(e, resolved, label, "Manual");
-            }
-
-            // 2. Recent used (last 15, by recency)
-            if (recentIds != null && recentIds.Count > 0)
-                _filterTypes.Add(RECENT_FILTER);
-            foreach (string gid in recentIds ?? new List<string>())
-            {
-                var asset = TryResolve(gid);
-                if (asset == null)
-                    continue;
-                var entry = new FavoriteEntry
-                {
-                    globalId = gid,
-                    containerPath = ComputeContainerPathFromGlobal(gid),
-                    objectPath = string.Empty,
-                    componentType = string.Empty
-                };
-                string label = BuildDisplayLabel(entry, asset);
-                AddItem(entry, asset, label, "Recent");
-            }
-
-            // 3. Frequently used (learned, with decay)
-            if (learnedFavorites.Count > 0)
-                _filterTypes.Add(FREQUENT_FILTER);
-            for (int i = 0; i < learnedFavorites.Count; i++)
-            {
-                var asset = learnedFavorites[i];
-                if (asset == null)
-                    continue;
-                string gid = learnedIds != null && i < learnedIds.Count ? learnedIds[i] : GlobalObjectId.GetGlobalObjectIdSlow(asset).ToString();
-                var entry = new FavoriteEntry
-                {
-                    globalId = gid,
-                    containerPath = ComputeContainerPathFromGlobal(gid),
-                    objectPath = string.Empty,
-                    componentType = string.Empty
-                };
-                string label = BuildDisplayLabel(entry, asset);
-                AddItem(entry, asset, label, "Frequent");
+                AddItem(e, resolved, label);
             }
 
             RebuildFilterButtons();
@@ -351,9 +308,7 @@ namespace BrunoMikoski.SelectionHistory
             var sortedFilters = _filterTypes.OrderBy(f =>
             {
                 if (f == ALL_FILTER) return "0";
-                if (f == RECENT_FILTER) return "1";
-                if (f == FREQUENT_FILTER) return "2";
-                return "3_" + f;
+                return "1_" + f;
             }).ToList();
             if (!sortedFilters.Contains(ALL_FILTER))
                 sortedFilters.Insert(0, ALL_FILTER);
@@ -384,10 +339,6 @@ namespace BrunoMikoski.SelectionHistory
             _filteredItems.Clear();
             if (_activeFilter == ALL_FILTER)
                 _filteredItems.AddRange(_allItems);
-            else if (_activeFilter == RECENT_FILTER)
-                _filteredItems.AddRange(_allItems.Where(x => x.Source == "Recent"));
-            else if (_activeFilter == FREQUENT_FILTER)
-                _filteredItems.AddRange(_allItems.Where(x => x.Source == "Frequent"));
             else
                 _filteredItems.AddRange(_allItems.Where(x => x.TypeFilter == _activeFilter));
 
