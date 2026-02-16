@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
@@ -13,6 +13,12 @@ namespace BrunoMikoski.SelectionHistory
         public string globalId;
         public int selectionCount;
         public long lastSelectedTicks;
+    }
+
+    [Serializable]
+    internal class RecentUsedData
+    {
+        public string[] globalIds;
     }
 
     [Serializable]
@@ -41,16 +47,28 @@ namespace BrunoMikoski.SelectionHistory
     {
         private static string ManualKey = "FavoritesManual";
         private static string LearnedKey = "FavoritesLearned";
+        private static string RecentUsedKey = "FavoritesRecentUsed";
 
         private static List<FavoriteEntry> manualEntries = new List<FavoriteEntry>();
         private static Dictionary<string, LearnedFavorite> learnedFavorites = new Dictionary<string, LearnedFavorite>();
+        private static List<string> recentUsedIds = new List<string>();
 
         private static bool manualFavoritesLoaded = false;
         private static bool learnedFavoritesLoaded = false;
+        private static bool recentUsedLoaded = false;
 
         private static bool learnedDirty = false;
+        private static bool recentDirty = false;
         private static double lastLearnedSaveTime = 0.0;
+        private static double lastSelectionTime = 0.0;
+        private static string lastSelectedGlobalId = null;
         private const double AUTO_SAVE_INTERVAL_SECONDS = 10.0;
+        private const double SELECTION_COOLDOWN_SECONDS = 2.0;
+        private const int MIN_SELECTION_COUNT_FOR_LEARNED = 2;
+        private const int RECENT_USED_MAX = 15;
+        private const int LEARNED_MAX_ITEMS = 25;
+        private const long TICKS_PER_DAY = 864000000000L;
+        private const int DECAY_DAYS = 14;
 
         static FavoritesManager()
         {
@@ -81,12 +99,24 @@ namespace BrunoMikoski.SelectionHistory
         private static void OnSelectionChanged()
         {
             EnsureLearnedFavoritesLoaded();
+            EnsureRecentUsedLoaded();
 
             Object current = Selection.activeObject;
             if (current == null)
                 return;
 
             string currentId = GlobalObjectId.GetGlobalObjectIdSlow(current).ToString();
+            double now = EditorApplication.timeSinceStartup;
+
+            // Recent Used: always add (with dedup - move to front), no cooldown
+            AddToRecentUsed(currentId);
+
+            // Learned: cooldown to avoid rapid-click inflation
+            if (currentId == lastSelectedGlobalId && (now - lastSelectionTime) < SELECTION_COOLDOWN_SECONDS)
+                return;
+            lastSelectedGlobalId = currentId;
+            lastSelectionTime = now;
+
             if (!learnedFavorites.TryGetValue(currentId, out LearnedFavorite lf))
             {
                 lf = new LearnedFavorite
@@ -104,14 +134,28 @@ namespace BrunoMikoski.SelectionHistory
             learnedDirty = true;
         }
 
+        private static void AddToRecentUsed(string globalId)
+        {
+            recentUsedIds.Remove(globalId);
+            recentUsedIds.Insert(0, globalId);
+            while (recentUsedIds.Count > RECENT_USED_MAX)
+                recentUsedIds.RemoveAt(recentUsedIds.Count - 1);
+            recentDirty = true;
+        }
+
         private static void OnEditorUpdate()
         {
-            if (!learnedDirty)
-                return;
-
             double now = EditorApplication.timeSinceStartup;
             if (now - lastLearnedSaveTime >= AUTO_SAVE_INTERVAL_SECONDS)
-                SaveLearnedFavorites();
+            {
+                if (learnedDirty)
+                    SaveLearnedFavorites();
+                if (recentDirty)
+                {
+                    SaveRecentUsed();
+                    recentDirty = false;
+                }
+            }
         }
 
         private static void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -124,6 +168,8 @@ namespace BrunoMikoski.SelectionHistory
         {
             SaveManualFavorites();
             SaveLearnedFavorites();
+            if (recentDirty)
+                SaveRecentUsed();
         }
 
         public static void ToggleManualFavorite(Object obj)
@@ -229,17 +275,21 @@ namespace BrunoMikoski.SelectionHistory
         {
             EnsureLearnedFavoritesLoaded();
 
+            long nowTicks = DateTime.UtcNow.Ticks;
             List<LearnedFavorite> list = new List<LearnedFavorite>(learnedFavorites.Values);
+
+            // Filter: min selection count, and apply time decay to score
+            list.RemoveAll(lf => lf.selectionCount < MIN_SELECTION_COUNT_FOR_LEARNED);
+
             list.Sort((a, b) =>
             {
-                int byCount = b.selectionCount.CompareTo(a.selectionCount);
-                if (byCount != 0)
-                    return byCount;
-                return b.lastSelectedTicks.CompareTo(a.lastSelectedTicks);
+                double scoreA = ComputeDecayedScore(a, nowTicks);
+                double scoreB = ComputeDecayedScore(b, nowTicks);
+                return scoreB.CompareTo(scoreA);
             });
 
-            if (list.Count > 20)
-                list = list.GetRange(0, 20);
+            if (list.Count > LEARNED_MAX_ITEMS)
+                list = list.GetRange(0, LEARNED_MAX_ITEMS);
 
             List<Object> result = new List<Object>();
             GlobalObjectId[] gids = new GlobalObjectId[list.Count];
@@ -263,19 +313,85 @@ namespace BrunoMikoski.SelectionHistory
         {
             EnsureLearnedFavoritesLoaded();
 
+            long nowTicks = DateTime.UtcNow.Ticks;
             List<LearnedFavorite> list = new List<LearnedFavorite>(learnedFavorites.Values);
+            list.RemoveAll(lf => lf.selectionCount < MIN_SELECTION_COUNT_FOR_LEARNED);
+
             list.Sort((a, b) =>
             {
-                int byCount = b.selectionCount.CompareTo(a.selectionCount);
-                if (byCount != 0)
-                    return byCount;
-                return b.lastSelectedTicks.CompareTo(a.lastSelectedTicks);
+                double scoreA = ComputeDecayedScore(a, nowTicks);
+                double scoreB = ComputeDecayedScore(b, nowTicks);
+                return scoreB.CompareTo(scoreA);
             });
+
+            if (list.Count > LEARNED_MAX_ITEMS)
+                list = list.GetRange(0, LEARNED_MAX_ITEMS);
 
             List<string> ids = new List<string>(list.Count);
             for (int i = 0; i < list.Count; i++)
                 ids.Add(list[i].globalId);
             return ids;
+        }
+
+        /// <summary>Decay score: recent selections count more. Items not selected in 14+ days lose weight.</summary>
+        private static double ComputeDecayedScore(LearnedFavorite lf, long nowTicks)
+        {
+            double count = lf.selectionCount;
+            long daysSince = (nowTicks - lf.lastSelectedTicks) / TICKS_PER_DAY;
+            if (daysSince > 0)
+                count *= Math.Max(0.2, 1.0 - (daysSince / (double)DECAY_DAYS) * 0.8);
+            return count;
+        }
+
+        private static void EnsureRecentUsedLoaded()
+        {
+            if (!recentUsedLoaded)
+            {
+                LoadRecentUsed();
+                recentUsedLoaded = true;
+            }
+        }
+
+        public static List<Object> GetRecentUsedFavorites()
+        {
+            EnsureRecentUsedLoaded();
+
+            List<Object> result = new List<Object>();
+            foreach (string gidStr in recentUsedIds)
+            {
+                if (!GlobalObjectId.TryParse(gidStr, out GlobalObjectId gid))
+                    continue;
+                Object[] objs = new Object[1];
+                GlobalObjectId.GlobalObjectIdentifiersToObjectsSlow(new[] { gid }, objs);
+                if (objs[0] != null)
+                    result.Add(objs[0]);
+            }
+            return result;
+        }
+
+        public static List<string> GetRecentUsedIds()
+        {
+            EnsureRecentUsedLoaded();
+            return new List<string>(recentUsedIds);
+        }
+
+        private static void SaveRecentUsed()
+        {
+            EnsureRecentUsedLoaded();
+            var data = new RecentUsedData { globalIds = recentUsedIds.ToArray() };
+            string json = JsonUtility.ToJson(data);
+            EditorUserSettings.SetConfigValue(RecentUsedKey, json);
+            recentDirty = false;
+        }
+
+        private static void LoadRecentUsed()
+        {
+            string json = EditorUserSettings.GetConfigValue(RecentUsedKey);
+            if (string.IsNullOrEmpty(json))
+                return;
+            var data = JsonUtility.FromJson<RecentUsedData>(json);
+            if (data?.globalIds != null)
+                recentUsedIds = new List<string>(data.globalIds);
         }
 
         // ---------- Helpers ----------

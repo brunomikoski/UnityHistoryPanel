@@ -5,6 +5,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.3.5]
+### Added
+- **Recent Used** section: last 15 selected items by recency, with dedicated filter
+- **Frequently Used** filter: shows learned items that pass the selection threshold
+
+### Changed
+- **Learned favorites** improvements:
+  - 2-second cooldown to prevent rapid-click inflation
+  - Minimum 2 selections before an item appears in Frequently Used
+  - Time decay: items not selected in 14+ days lose weight and drop in ranking
+  - Increased cap from 20 to 25 items
+- Favorites window now **closes automatically** when selecting an item
+- Favorites window now **closes when clicking outside** (focus lost)
+- Fixed Unity 6.0–6.2 compatibility: `MainToolbarElement` only used on Unity 6.3+ (was incorrectly requiring 6.0+)
+
+## [0.3.4]
+### Added
+- Unity 6.3+ support: Favorites toolbar now uses `MainToolbarElementAttribute` when available (reliable with multiple Unity instances)
+- Project-style two-column layout for Favorites panel: header bar, filter pane (left), asset list (right)
+- Empty state message when no favorites exist
+
+### Changed
+- Favorites panel redesigned with UIToolkit: TwoPaneSplitView, styled filters, improved list with hover/selection states
+- Replaced AdvancedDropdown with floating EditorWindow for better multi-instance compatibility
+
 ## [0.3.3]
 ## Changed
 - Refactored Favorites to be smarter
@@ -65,6 +90,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added 
  - First initial working version
 
+[0.3.5]: https://github.com/brunomikoski/UnityHistoryPanel/releases/tag/v0.3.5
+[0.3.4]: https://github.com/brunomikoski/UnityHistoryPanel/releases/tag/v0.3.4
 [0.3.3]: https://github.com/brunomikoski/UnityHistoryPanel/releases/tag/v0.3.3
 [0.3.2]: https://github.com/brunomikoski/UnityHistoryPanel/releases/tag/v0.3.2
 [0.3.1]: https://github.com/brunomikoski/UnityHistoryPanel/releases/tag/v0.3.1

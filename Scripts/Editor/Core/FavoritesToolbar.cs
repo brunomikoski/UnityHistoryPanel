@@ -1,5 +1,4 @@
-﻿using UnityEditor;
-using UnityEditor.IMGUI.Controls;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,15 +8,14 @@ namespace BrunoMikoski.SelectionHistory
     [InitializeOnLoad]
     internal static class FavoritesToolbar
     {
-        private static bool pendingOpen;
-        private static Rect pendingRect;
-        private static readonly AdvancedDropdownState CACHED_STATE = new AdvancedDropdownState();
-
         static FavoritesToolbar()
         {
+#if !UNITY_6000_3_OR_NEWER
             EditorApplication.delayCall += Initialize;
+#endif
         }
 
+#if !UNITY_6000_3_OR_NEWER
         private static void Initialize()
         {
             VisualElement parent = new VisualElement
@@ -25,44 +23,23 @@ namespace BrunoMikoski.SelectionHistory
                 style = { flexGrow = 0, flexDirection = FlexDirection.Row, flexShrink = 1, minWidth = 0 }
             };
 
-            ToolbarMenu favoritesDropdown = new ToolbarMenu
+            var favoritesButton = new ToolbarButton(OpenFavoritesPanel)
             {
                 tooltip = "Click to see your favorite assets",
                 text = "Favorites "
             };
-            ApplyToolbarStyle(favoritesDropdown);
+            ApplyToolbarStyle(favoritesButton);
 
-            favoritesDropdown.RegisterCallback<MouseUpEvent>(e =>
-            {
-                if (e.button != 0)
-                    return;
-
-                pendingRect = favoritesDropdown.worldBound;
-                pendingOpen = true;
-            });
-
-            parent.Add(favoritesDropdown);
-
-            IMGUIContainer opener = new IMGUIContainer();
-            opener.style.width = 0;
-            opener.style.height = 0;
-            opener.onGUIHandler = () =>
-            {
-                if (!pendingOpen)
-                    return;
-                pendingOpen = false;
-
-                Vector2 guiPos = GUIUtility.ScreenToGUIPoint(pendingRect.position);
-                Rect guiRect = new Rect(guiPos.x, guiPos.y + pendingRect.height, pendingRect.width, 0f);
-                FavoritesAdvancedDropdown dropdown = new FavoritesAdvancedDropdown(CACHED_STATE);
-                dropdown.SetFavorites(FavoritesManager.GetManualFavoriteEntries(), FavoritesManager.GetLearnedFavorites());
-                dropdown.Show(guiRect);
-            };
-            parent.Add(opener);
+            parent.Add(favoritesButton);
 
             UnityMainToolbarUtility.AddCustom(UnityMainToolbarUtility.TargetContainer.Left,
                 UnityMainToolbarUtility.Side.Right,
                 parent, 4);
+        }
+
+        private static void OpenFavoritesPanel()
+        {
+            FavoritesPanelWindow.ShowAtPosition(null);
         }
 
         private static void ApplyToolbarStyle(VisualElement element)
@@ -82,5 +59,6 @@ namespace BrunoMikoski.SelectionHistory
             element.style.marginRight = 1;
             element.style.marginLeft = 1;
         }
+#endif
     }
 }

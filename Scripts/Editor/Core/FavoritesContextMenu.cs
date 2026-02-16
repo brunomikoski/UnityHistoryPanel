@@ -1,13 +1,11 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 
 namespace BrunoMikoski.SelectionHistory
 {
-    namespace BrunoMikoski.SelectionHistory
+    internal static class FavoritesContextMenu
     {
-        internal static class FavoritesContextMenu
-        {
-            private const string AssetsMenuPath = "Assets/Favorite";
+        private const string AssetsMenuPath = "Assets/Favorite";
             private const string GameObjectMenuPath = "GameObject/Favorite";
             private const string ContextMenuPath = "CONTEXT/Object/Favorite";
 
@@ -96,6 +94,11 @@ namespace BrunoMikoski.SelectionHistory
                 Menu.SetChecked(ContextMenuPath, isFav);
                 return true;
             }
+
+            [MenuItem("Tools/History/Open Favorites %#f", false, 100)]
+            private static void OpenFavoritesPanel()
+            {
+                FavoritesPanelWindow.ShowAtPosition(null);
+            }
         }
-    }
 }

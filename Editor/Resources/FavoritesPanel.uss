@@ -1,0 +1,172 @@
+/* Favorites Panel - Project-style Two Column Layout */
+
+/* Root */
+#favorites-root {
+    flex-grow: 1;
+    flex-direction: column;
+    min-height: 300px;
+}
+
+/* Header bar - like Project window top bar */
+#favorites-header {
+    flex-direction: row;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    min-height: 24px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(128, 128, 128, 0.3);
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+#favorites-header Label {
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: rgb(200, 200, 200);
+}
+
+/* Main content area with split view */
+#favorites-content {
+    flex-grow: 1;
+    flex-direction: row;
+    min-height: 0;
+}
+
+/* Left pane - Filters (Project folder tree style) */
+#favorites-filter-pane {
+    flex-grow: 0;
+    flex-shrink: 0;
+    min-width: 140px;
+    max-width: 220px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-right-width: 1px;
+    border-right-color: rgba(128, 128, 128, 0.25);
+}
+
+#favorites-filter-pane .filter-section-label {
+    font-size: 11px;
+    -unity-font-style: bold;
+    color: rgb(160, 160, 160);
+    padding-left: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(128, 128, 128, 0.2);
+}
+
+/* Filter buttons - tree item style */
+#favorites-filter-pane .filter-item {
+    padding-left: 10px;
+    padding-right: 8px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 1px;
+    border-radius: 3px;
+    -unity-text-align: middle-left;
+}
+
+#favorites-filter-pane .filter-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+#favorites-filter-pane .filter-item:active {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+#favorites-filter-pane .filter-item.selected {
+    background-color: rgba(58, 121, 187, 0.4);
+}
+
+#favorites-filter-pane .filter-item.selected:hover {
+    background-color: rgba(58, 121, 187, 0.5);
+}
+
+/* Right pane - Asset list (Project list style) */
+#favorites-list-pane {
+    flex-grow: 1;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+/* ListView styling */
+#favorites-list {
+    flex-grow: 1;
+    border-top-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    background-color: transparent;
+}
+
+#favorites-list .unity-list-view__item {
+    padding-left: 6px;
+    padding-right: 6px;
+    min-height: 24px;
+    border-radius: 2px;
+}
+
+#favorites-list .unity-list-view__item:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+#favorites-list .unity-list-view__item:selected {
+    background-color: rgba(58, 121, 187, 0.35);
+}
+
+#favorites-list .unity-list-view__item:selected:hover {
+    background-color: rgba(58, 121, 187, 0.45);
+}
+
+/* List item content */
+.favorites-list-item {
+    flex-direction: row;
+    align-items: center;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.favorites-list-item .favorites-item-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.favorites-list-item .favorites-item-label {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    color: rgb(220, 220, 220);
+}
+
+/* Empty state - overlays list when no items */
+#favorites-empty-state {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+#favorites-empty-state Label {
+    font-size: 13px;
+    color: rgb(140, 140, 140);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
