@@ -115,6 +115,11 @@ namespace BrunoMikoski.SelectionHistory
             content.Add(_splitView);
             root.Add(content);
 
+            var tipsFooter = new VisualElement { name = "favorites-tips" };
+            tipsFooter.Add(new Label("Shift+Click — Open scene/prefab • Double-click — Select • Click outside — Close"));
+            tipsFooter.Add(new Label("Ctrl+Shift+F — Open panel • Right-click > Favorite — Pin to favorites"));
+            root.Add(tipsFooter);
+
             rootVisualElement.Add(root);
         }
 
