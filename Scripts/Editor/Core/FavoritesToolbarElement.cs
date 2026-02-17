@@ -20,7 +20,11 @@ namespace BrunoMikoski.SelectionHistory
             if (icon == null)
                 icon = EditorGUIUtility.IconContent("Project").image as Texture2D;
 
-            var content = new MainToolbarContent(icon, "★ Favorites", "Click to see your favorite assets");
+#if UNITY_6000_3_OR_NEWER
+            var content = new MainToolbarContent("Favorites", icon, "Click to see your favorite assets");
+#else
+            var content = new MainToolbarContent(icon, "Favorites", "Click to see your favorite assets");
+#endif
             return new MainToolbarButton(content, () => FavoritesPanelWindow.ShowAtPosition(null));
         }
     }

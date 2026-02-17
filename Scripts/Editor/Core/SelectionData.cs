@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -64,7 +64,11 @@ namespace BrunoMikoski.SelectionHistory
 	        for (int i = 0; i < guids.Count; i++)
 		        storedObjs.Add(AssetDatabase.LoadAssetAtPath<Object>(AssetDatabase.GUIDToAssetPath(guids[i])));
 	        for (int i = 0; i < instanceIDs.Count; i++)
+	        {
+#pragma warning disable CS0618 // InstanceIDToObject is obsolete, use EntityIdToObject - migration requires changing storage format
 		        storedObjs.Add(EditorUtility.InstanceIDToObject(instanceIDs[i]));
+#pragma warning restore CS0618
+	        }
 	        return storedObjs;
         }
     }

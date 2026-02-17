@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -58,6 +58,7 @@ namespace BrunoMikoski.SelectionHistory
 
         private static void Initialize()
         {
+#if !UNITY_6000_3_OR_NEWER
             VisualElement parent = new VisualElement()
             {
                 style =
@@ -93,6 +94,11 @@ namespace BrunoMikoski.SelectionHistory
 
             UnityMainToolbarUtility.AddCustom(UnityMainToolbarUtility.TargetContainer.Left,
                 UnityMainToolbarUtility.Side.Right, parent, 3);
+#else
+            HISTORY_SELECTION_MENU = new ToolbarMenu { visible = false };
+            HISTORY_SELECTION_MENU.menu.AppendAction("Default is never shown", a => { },
+                a => DropdownMenuAction.Status.None);
+#endif
 
             EditorApplication.playModeStateChanged += EditorApplicationOnPlayModeStateChanged;
             AssemblyReloadEvents.beforeAssemblyReload += SaveHistory;
@@ -124,9 +130,19 @@ namespace BrunoMikoski.SelectionHistory
 
         private static void UpdateButtonsVisibility()
         {
-            backButton.SetEnabled(History.SelectionData.Count > 1 && History.PointInTime > 0);
-            forwardButton.SetEnabled(History.SelectionData.Count > 1 && History.PointInTime < History.SelectionData.Count - 1);
+#if UNITY_6000_3_OR_NEWER
+            SelectionHistoryToolbarElement.RefreshToolbar();
+#else
+            backButton.SetEnabled(CanGoBack);
+            forwardButton.SetEnabled(CanGoForward);
+#endif
         }
+
+        internal static bool CanGoBack =>
+            History.SelectionData.Count > 1 && History.PointInTime > 0;
+
+        internal static bool CanGoForward =>
+            History.SelectionData.Count > 1 && History.PointInTime < History.SelectionData.Count - 1;
 
         [MenuItem("Tools/Selection History/Go Back")]
         public static void GoBack()
