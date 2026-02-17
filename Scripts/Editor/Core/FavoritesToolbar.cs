@@ -26,7 +26,7 @@ namespace BrunoMikoski.SelectionHistory
             var favoritesButton = new ToolbarButton(OpenFavoritesPanel)
             {
                 tooltip = "Click to see your favorite assets",
-                text = "Favorites "
+                text = "★ Favorites"
             };
             ApplyToolbarStyle(favoritesButton);
 

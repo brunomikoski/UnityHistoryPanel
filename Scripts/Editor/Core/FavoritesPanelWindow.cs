@@ -98,7 +98,7 @@ namespace BrunoMikoski.SelectionHistory
                 selectionType = SelectionType.Single
             };
             _itemsList.itemsChosen += OnItemChosen;
-            _itemsList.selectionChanged += _ => { };
+            _itemsList.selectionChanged += OnSelectionChanged;
 
             _emptyState = new VisualElement { name = "favorites-empty-state" };
             _emptyState.Add(new Label("No favorites yet.\nAdd manual favorites via right-click > Favorite."));
@@ -114,10 +114,12 @@ namespace BrunoMikoski.SelectionHistory
             root.Add(content);
 
             var tipsFooter = new VisualElement { name = "favorites-tips" };
-            tipsFooter.Add(new Label("Shift+Click — Open scene/prefab • Double-click — Select • Click outside — Close"));
-            var lastTip = new Label("Ctrl+Shift+F — Open panel • Right-click > Favorite — Pin to favorites");
-            lastTip.AddToClassList("tip-last");
-            tipsFooter.Add(lastTip);
+            tipsFooter.Add(new Label(
+                "• Shift+Click — Open scene/prefab\n" +
+                "• Single-click — Select\n" +
+                "• Click outside — Close\n" +
+                "• Ctrl+Shift+F — Open panel\n" +
+                "• Right-click item — Remove from favorites"));
             root.Add(tipsFooter);
 
             rootVisualElement.Add(root);
@@ -149,7 +151,24 @@ namespace BrunoMikoski.SelectionHistory
 
             row.Add(icon);
             row.Add(label);
-            row.userData = new object[] { icon, label };
+            row.userData = new object[] { icon, label, -1 };
+
+            row.AddManipulator(new ContextualMenuManipulator(evt =>
+            {
+                var parts = row.userData as object[];
+                if (parts == null || parts.Length < 3) return;
+                int idx = parts[2] is int i ? i : -1;
+                if (idx < 0 || idx >= _filteredItems.Count) return;
+
+                string globalId = _filteredItems[idx].GlobalId;
+                evt.menu.AppendSeparator();
+                evt.menu.AppendAction("★ Remove From Favorites", _ =>
+                {
+                    FavoritesManager.RemoveManualFavoriteByGlobalId(globalId);
+                    RefreshContent();
+                }, DropdownMenuAction.AlwaysEnabled);
+            }));
+
             return row;
         }
 
@@ -160,8 +179,10 @@ namespace BrunoMikoski.SelectionHistory
 
             var item = _filteredItems[index];
             var parts = element.userData as object[];
-            if (parts == null || parts.Length < 2)
+            if (parts == null || parts.Length < 3)
                 return;
+
+            parts[2] = index;
 
             var icon = parts[0] as Image;
             var label = parts[1] as Label;
@@ -183,9 +204,9 @@ namespace BrunoMikoski.SelectionHistory
             }
         }
 
-        private void OnItemChosen(IEnumerable<object> chosen)
+        private void OnSelectionChanged(IEnumerable<object> selected)
         {
-            foreach (var o in chosen)
+            foreach (var o in selected)
             {
                 if (o is FavoriteDisplayItem item)
                 {
@@ -193,6 +214,11 @@ namespace BrunoMikoski.SelectionHistory
                     break;
                 }
             }
+        }
+
+        private void OnItemChosen(IEnumerable<object> chosen)
+        {
+            OnSelectionChanged(chosen);
         }
 
         private void SelectFavorite(FavoriteDisplayItem item)

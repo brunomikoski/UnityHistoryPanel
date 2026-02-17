@@ -1,98 +1,112 @@
+using System;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace BrunoMikoski.SelectionHistory
 {
     internal static class FavoritesContextMenu
     {
-        private const string AssetsMenuPath = "Assets/Favorite";
-            private const string GameObjectMenuPath = "GameObject/Favorite";
-            private const string ContextMenuPath = "CONTEXT/Object/Favorite";
+            private const string AssetsAddPath = "Assets/★ Add to Favorites";
+            private const string AssetsRemovePath = "Assets/★ Remove From Favorites";
+            private const string GameObjectAddPath = "GameObject/★ Add to Favorites";
+            private const string GameObjectRemovePath = "GameObject/★ Remove From Favorites";
+            private const string ContextAddPath = "CONTEXT/Object/★ Add to Favorites";
+            private const string ContextRemovePath = "CONTEXT/Object/★ Remove From Favorites";
+            private const int FavoritesMenuPriority = 10000;
 
-            [MenuItem(AssetsMenuPath, false, 2000)]
-            private static void ToggleFavoriteAssets()
+            [MenuItem(AssetsAddPath, false, FavoritesMenuPriority)]
+            private static void AddFavoriteAssets()
             {
-                Object[] objs = Selection.objects;
-                if (objs == null || objs.Length == 0)
-                    return;
-                bool allFav = FavoritesManager.AreAllManualFavorites(objs);
-                for (int i = 0; i < objs.Length; i++)
+                foreach (Object o in Selection.objects ?? Array.Empty<Object>())
                 {
-                    Object o = objs[i];
-                    if (o == null)
-                        continue;
-                    if (allFav)
-                        FavoritesManager.RemoveManualFavorite(o);
-                    else
+                    if (o != null)
                         FavoritesManager.AddManualFavorite(o);
                 }
             }
 
-            [MenuItem(AssetsMenuPath, true)]
-            private static bool ValidateToggleFavoriteAssets()
+            [MenuItem(AssetsAddPath, true)]
+            private static bool ValidateAddFavoriteAssets()
             {
                 Object[] objs = Selection.objects;
-                bool enabled = objs != null && objs.Length > 0;
-                if (enabled)
-                {
-                    bool allFav = FavoritesManager.AreAllManualFavorites(objs);
-                    Menu.SetChecked(AssetsMenuPath, allFav);
-                }
-
-                return enabled;
+                return objs != null && objs.Length > 0 && !FavoritesManager.AreAllManualFavorites(objs);
             }
 
-            [MenuItem(GameObjectMenuPath, false, 2000)]
-            private static void ToggleFavoriteGameObject()
+            [MenuItem(AssetsRemovePath, false, FavoritesMenuPriority)]
+            private static void RemoveFavoriteAssets()
             {
-                GameObject[] objs = Selection.gameObjects;
-                if (objs == null || objs.Length == 0)
-                    return;
-                bool allFav = FavoritesManager.AreAllManualFavorites(objs);
-                for (int i = 0; i < objs.Length; i++)
+                foreach (Object o in Selection.objects ?? Array.Empty<Object>())
                 {
-                    GameObject o = objs[i];
-                    if (o == null)
-                        continue;
-                    if (allFav)
+                    if (o != null)
                         FavoritesManager.RemoveManualFavorite(o);
-                    else
+                }
+            }
+
+            [MenuItem(AssetsRemovePath, true)]
+            private static bool ValidateRemoveFavoriteAssets()
+            {
+                Object[] objs = Selection.objects;
+                return objs != null && objs.Length > 0 && FavoritesManager.AreAllManualFavorites(objs);
+            }
+
+            [MenuItem(GameObjectAddPath, false, FavoritesMenuPriority)]
+            private static void AddFavoriteGameObject()
+            {
+                foreach (GameObject o in Selection.gameObjects ?? Array.Empty<GameObject>())
+                {
+                    if (o != null)
                         FavoritesManager.AddManualFavorite(o);
                 }
             }
 
-            [MenuItem(GameObjectMenuPath, true)]
-            private static bool ValidateToggleFavoriteGameObject()
+            [MenuItem(GameObjectAddPath, true)]
+            private static bool ValidateAddFavoriteGameObject()
             {
                 GameObject[] objs = Selection.gameObjects;
-                bool enabled = objs != null && objs.Length > 0;
-                if (enabled)
+                return objs != null && objs.Length > 0 && !FavoritesManager.AreAllManualFavorites(objs);
+            }
+
+            [MenuItem(GameObjectRemovePath, false, FavoritesMenuPriority)]
+            private static void RemoveFavoriteGameObject()
+            {
+                foreach (GameObject o in Selection.gameObjects ?? Array.Empty<GameObject>())
                 {
-                    bool allFav = FavoritesManager.AreAllManualFavorites(objs);
-                    Menu.SetChecked(GameObjectMenuPath, allFav);
+                    if (o != null)
+                        FavoritesManager.RemoveManualFavorite(o);
                 }
-
-                return enabled;
             }
 
-            [MenuItem(ContextMenuPath, false, 2000)]
-            private static void ToggleFavoriteContext(MenuCommand command)
+            [MenuItem(GameObjectRemovePath, true)]
+            private static bool ValidateRemoveFavoriteGameObject()
             {
-                Object obj = command.context;
-                if (obj == null)
-                    return;
-                FavoritesManager.ToggleManualFavorite(obj);
+                GameObject[] objs = Selection.gameObjects;
+                return objs != null && objs.Length > 0 && FavoritesManager.AreAllManualFavorites(objs);
             }
 
-            [MenuItem(ContextMenuPath, true)]
-            private static bool ValidateToggleFavoriteContext(MenuCommand command)
+            [MenuItem(ContextAddPath, false, FavoritesMenuPriority)]
+            private static void AddFavoriteContext(MenuCommand command)
             {
-                Object obj = command.context;
-                if (obj == null)
-                    return false;
-                bool isFav = FavoritesManager.IsManualFavorite(obj);
-                Menu.SetChecked(ContextMenuPath, isFav);
-                return true;
+                if (command.context != null)
+                    FavoritesManager.AddManualFavorite(command.context);
+            }
+
+            [MenuItem(ContextAddPath, true)]
+            private static bool ValidateAddFavoriteContext(MenuCommand command)
+            {
+                return command.context != null && !FavoritesManager.IsManualFavorite(command.context);
+            }
+
+            [MenuItem(ContextRemovePath, false, FavoritesMenuPriority)]
+            private static void RemoveFavoriteContext(MenuCommand command)
+            {
+                if (command.context != null)
+                    FavoritesManager.RemoveManualFavorite(command.context);
+            }
+
+            [MenuItem(ContextRemovePath, true)]
+            private static bool ValidateRemoveFavoriteContext(MenuCommand command)
+            {
+                return command.context != null && FavoritesManager.IsManualFavorite(command.context);
             }
 
             [MenuItem("Tools/History/Open Favorites %#f", false, 100)]
