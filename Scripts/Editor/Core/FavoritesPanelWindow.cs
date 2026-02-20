@@ -116,6 +116,7 @@ namespace BrunoMikoski.SelectionHistory
             var tipsFooter = new VisualElement { name = "favorites-tips" };
             tipsFooter.Add(new Label(
                 "• Shift+Click — Open scene/prefab\n" +
+                "• Ctrl+Click — Open scene additively / Add prefab to scene\n" +
                 "• Single-click — Select\n" +
                 "• Click outside — Close\n" +
                 "• Ctrl+Shift+F — Open panel\n" +
@@ -224,12 +225,14 @@ namespace BrunoMikoski.SelectionHistory
         private void SelectFavorite(FavoriteDisplayItem item)
         {
             bool shift = Event.current != null && Event.current.shift;
+            bool ctrl = Event.current != null && Event.current.control;
 
             Object target = TryResolve(item.GlobalId);
             if (target == null)
             {
                 string pathToOpen = !string.IsNullOrEmpty(item.ContainerPath) ? item.ContainerPath : ComputeContainerPathFromGlobal(item.GlobalId);
-                EnsureContainerLoaded(pathToOpen, shift);
+                bool openSingle = shift && !ctrl;
+                EnsureContainerLoaded(pathToOpen, openSingle);
                 target = TryResolve(item.GlobalId);
             }
 
@@ -242,11 +245,52 @@ namespace BrunoMikoski.SelectionHistory
 
             if (shift)
                 OpenContainerForObject(target);
+            else if (ctrl)
+                target = OpenAdditiveOrAddToScene(target) ?? target;
 
             Selection.activeObject = target;
             EditorGUIUtility.PingObject(target);
 
             Close();
+        }
+
+        private static Object OpenAdditiveOrAddToScene(Object target)
+        {
+            if (target is SceneAsset scene)
+            {
+                string path = AssetDatabase.GetAssetPath(scene);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    UnityEditor.SceneManagement.EditorSceneManager.OpenScene(path, UnityEditor.SceneManagement.OpenSceneMode.Additive);
+                }
+                return target;
+            }
+
+            GameObject prefabRoot = null;
+            if (target is GameObject go)
+            {
+                if (PrefabUtility.IsPartOfPrefabAsset(go))
+                    prefabRoot = go;
+                else if (PrefabUtility.GetOutermostPrefabInstanceRoot(go) != null)
+                    prefabRoot = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
+            }
+            else if (target is Component comp)
+            {
+                prefabRoot = PrefabUtility.GetCorrespondingObjectFromOriginalSource(comp.gameObject);
+            }
+
+            if (prefabRoot != null && PrefabUtility.IsPartOfPrefabAsset(prefabRoot))
+            {
+                var activeScene = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene();
+                if (activeScene.IsValid())
+                {
+                    var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefabRoot, activeScene);
+                    Undo.RegisterCreatedObjectUndo(instance, "Add prefab to scene");
+                    return instance;
+                }
+            }
+
+            return target;
         }
 
         public void RefreshContent()
