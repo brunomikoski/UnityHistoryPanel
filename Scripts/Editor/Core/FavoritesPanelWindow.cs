@@ -52,11 +52,6 @@ namespace BrunoMikoski.SelectionHistory
             EditorApplication.delayCall += () => window.RefreshContent();
         }
 
-        private void OnLostFocus()
-        {
-            Close();
-        }
-
         private void CreateGUI()
         {
             var styleSheet = LoadStyleSheet();
@@ -118,9 +113,8 @@ namespace BrunoMikoski.SelectionHistory
                 "• Shift+Click — Open scene/prefab\n" +
                 "• Ctrl+Click — Open scene additively / Add prefab to scene\n" +
                 "• Single-click — Select\n" +
-                "• Click outside — Close\n" +
                 "• Ctrl+Shift+F — Open panel\n" +
-                "• Right-click item — Remove from favorites"));
+                "• Right-click item — Remove from favorites\n"));
             root.Add(tipsFooter);
 
             rootVisualElement.Add(root);
@@ -250,8 +244,6 @@ namespace BrunoMikoski.SelectionHistory
 
             Selection.activeObject = target;
             EditorGUIUtility.PingObject(target);
-
-            Close();
         }
 
         private static Object OpenAdditiveOrAddToScene(Object target)

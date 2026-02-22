@@ -11,8 +11,6 @@ namespace BrunoMikoski.SelectionHistory
             private const string AssetsRemovePath = "Assets/★ Remove From Favorites";
             private const string GameObjectAddPath = "GameObject/★ Add to Favorites";
             private const string GameObjectRemovePath = "GameObject/★ Remove From Favorites";
-            private const string ContextAddPath = "CONTEXT/Object/★ Add to Favorites";
-            private const string ContextRemovePath = "CONTEXT/Object/★ Remove From Favorites";
             private const int FavoritesMenuPriority = 10000;
 
             [MenuItem(AssetsAddPath, false, FavoritesMenuPriority)]
@@ -81,32 +79,6 @@ namespace BrunoMikoski.SelectionHistory
             {
                 GameObject[] objs = Selection.gameObjects;
                 return objs != null && objs.Length > 0 && FavoritesManager.AreAllManualFavorites(objs);
-            }
-
-            [MenuItem(ContextAddPath, false, FavoritesMenuPriority)]
-            private static void AddFavoriteContext(MenuCommand command)
-            {
-                if (command.context != null)
-                    FavoritesManager.AddManualFavorite(command.context);
-            }
-
-            [MenuItem(ContextAddPath, true)]
-            private static bool ValidateAddFavoriteContext(MenuCommand command)
-            {
-                return command.context != null && !FavoritesManager.IsManualFavorite(command.context);
-            }
-
-            [MenuItem(ContextRemovePath, false, FavoritesMenuPriority)]
-            private static void RemoveFavoriteContext(MenuCommand command)
-            {
-                if (command.context != null)
-                    FavoritesManager.RemoveManualFavorite(command.context);
-            }
-
-            [MenuItem(ContextRemovePath, true)]
-            private static bool ValidateRemoveFavoriteContext(MenuCommand command)
-            {
-                return command.context != null && FavoritesManager.IsManualFavorite(command.context);
             }
 
             [MenuItem("Tools/History/Open Favorites %#f", false, 100)]
