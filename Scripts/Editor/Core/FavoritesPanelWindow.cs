@@ -111,8 +111,8 @@ namespace BrunoMikoski.SelectionHistory
             var tipsFooter = new VisualElement { name = "favorites-tips" };
             tipsFooter.Add(new Label(
                 "• Shift+Click — Open scene/prefab\n" +
-                "• Ctrl+Click — Open scene additively / Add prefab to scene\n" +
-                "• Single-click — Select\n" +
+                "• Ctrl+Click — Open additively / Add prefab\n" +
+                "• Single-click — Select & ping\n" +
                 "• Ctrl+Shift+F — Open panel\n" +
                 "• Right-click item — Remove from favorites\n"));
             root.Add(tipsFooter);
@@ -244,6 +244,9 @@ namespace BrunoMikoski.SelectionHistory
 
             Selection.activeObject = target;
             EditorGUIUtility.PingObject(target);
+
+            if (shift || ctrl)
+                Close();
         }
 
         private static Object OpenAdditiveOrAddToScene(Object target)
