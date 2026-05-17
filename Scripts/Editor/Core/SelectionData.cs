@@ -14,7 +14,7 @@ namespace BrunoMikoski.SelectionHistory
         private List<string> guids = new List<string>();
 
         [SerializeField]
-        private List<int> instanceIDs = new List<int>();
+        private List<EntityId> instanceIDs = new();
 
         private string displayName;
         public string DisplayName
@@ -43,7 +43,7 @@ namespace BrunoMikoski.SelectionHistory
                     continue;
                 if (o is GameObject gameObject)
                 {
-                    instanceIDs.Add(gameObject.GetInstanceID());
+                    instanceIDs.Add(gameObject.GetEntityId());
                 }
                 else
                 {
@@ -65,9 +65,7 @@ namespace BrunoMikoski.SelectionHistory
 		        storedObjs.Add(AssetDatabase.LoadAssetAtPath<Object>(AssetDatabase.GUIDToAssetPath(guids[i])));
 	        for (int i = 0; i < instanceIDs.Count; i++)
 	        {
-#pragma warning disable CS0618 // InstanceIDToObject is obsolete, use EntityIdToObject - migration requires changing storage format
-		        storedObjs.Add(EditorUtility.InstanceIDToObject(instanceIDs[i]));
-#pragma warning restore CS0618
+		        storedObjs.Add(EditorUtility.EntityIdToObject(instanceIDs[i]));
 	        }
 	        return storedObjs;
         }
