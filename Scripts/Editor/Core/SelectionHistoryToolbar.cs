@@ -9,7 +9,9 @@ namespace BrunoMikoski.SelectionHistory
     [InitializeOnLoad]
     internal class SelectionHistoryToolbar
     {
+#if !UNITY_6000_3_OR_NEWER
         private static ToolbarMenu HISTORY_SELECTION_MENU;
+#endif
 
         private static readonly string HISTORY_STORAGE_KEY = Application.productName + "EditorHistoryKey";
         private const string MAX_HISTORY_ITEMS_KEY = "MaxHistoryItemsKey";
@@ -44,8 +46,10 @@ namespace BrunoMikoski.SelectionHistory
             }
         }
 
+#if !UNITY_6000_3_OR_NEWER
         private static VisualElement backButton;
         private static VisualElement forwardButton;
+#endif
 
 
         static SelectionHistoryToolbar()
@@ -94,10 +98,6 @@ namespace BrunoMikoski.SelectionHistory
 
             UnityMainToolbarUtility.AddCustom(UnityMainToolbarUtility.TargetContainer.Left,
                 UnityMainToolbarUtility.Side.Right, parent, 3);
-#else
-            HISTORY_SELECTION_MENU = new ToolbarMenu { visible = false };
-            HISTORY_SELECTION_MENU.menu.AppendAction("Default is never shown", a => { },
-                a => DropdownMenuAction.Status.None);
 #endif
 
             EditorApplication.playModeStateChanged += EditorApplicationOnPlayModeStateChanged;
@@ -156,9 +156,10 @@ namespace BrunoMikoski.SelectionHistory
             History.Forward();
         }
 
-        private static void ClearHistory()
+        [MenuItem("Tools/Selection History/Clear History")]
+        public static void ClearHistory()
         {
-            EditorPrefs.DeleteKey(HISTORY_STORAGE_KEY);
+            SessionState.EraseString(HISTORY_STORAGE_KEY);
             CACHED_HISTORY = new SelectionHistoryData();
             UpdateButtonsVisibility();
         }
@@ -168,10 +169,8 @@ namespace BrunoMikoski.SelectionHistory
             History.SetPointInTime(itemIndex);
         }
 
-        private static void ShowBackwardsHistory()
+        internal static void PopulateBackwardsHistory(DropdownMenu menu)
         {
-            HISTORY_SELECTION_MENU.menu.MenuItems().Clear();
-
             for (int i = History.PointInTime-1; i >= 0; i--)
             {
                 SelectionData selectionData = History.SelectionData[i];
@@ -180,26 +179,17 @@ namespace BrunoMikoski.SelectionHistory
                     continue;
 
                 int targetIndex = i;
-                HISTORY_SELECTION_MENU.menu.AppendAction(selectionData.DisplayName, a =>
+                menu.AppendAction(selectionData.DisplayName, a =>
                 {
                     SetPointInTime(targetIndex);
                 });
             }
 
-
-            HISTORY_SELECTION_MENU.menu.AppendSeparator();
-            HISTORY_SELECTION_MENU.menu.AppendAction("Clear History", a =>
-            {
-                ClearHistory();
-            }, a => DropdownMenuAction.Status.Normal);
-
-            HISTORY_SELECTION_MENU.ShowMenu();
+            AppendClearHistory(menu);
         }
-        
-        private static void ShowForwardHistory()
-        {
-            HISTORY_SELECTION_MENU.menu.MenuItems().Clear();
 
+        internal static void PopulateForwardHistory(DropdownMenu menu)
+        {
             for (int i = History.PointInTime+1; i < History.SelectionData.Count; i++)
             {
                 SelectionData selectionData = History.SelectionData[i];
@@ -207,26 +197,45 @@ namespace BrunoMikoski.SelectionHistory
                 if (!selectionData.IsValid)
                     continue;
 
-
                 int targetIndex = i;
-                HISTORY_SELECTION_MENU.menu.AppendAction(selectionData.DisplayName, a =>
+                menu.AppendAction(selectionData.DisplayName, a =>
                 {
                     SetPointInTime(targetIndex);
                 });
             }
 
-            HISTORY_SELECTION_MENU.menu.AppendSeparator();
-            HISTORY_SELECTION_MENU.menu.AppendAction("Clear History", a =>
+            AppendClearHistory(menu);
+        }
+
+        private static void AppendClearHistory(DropdownMenu menu)
+        {
+            menu.AppendSeparator();
+            menu.AppendAction("Clear History", a =>
             {
                 ClearHistory();
             }, a => DropdownMenuAction.Status.Normal);
+        }
 
+#if !UNITY_6000_3_OR_NEWER
+        private static void ShowBackwardsHistory()
+        {
+            HISTORY_SELECTION_MENU.menu.MenuItems().Clear();
+            PopulateBackwardsHistory(HISTORY_SELECTION_MENU.menu);
             HISTORY_SELECTION_MENU.ShowMenu();
         }
+
+        private static void ShowForwardHistory()
+        {
+            HISTORY_SELECTION_MENU.menu.MenuItems().Clear();
+            PopulateForwardHistory(HISTORY_SELECTION_MENU.menu);
+            HISTORY_SELECTION_MENU.ShowMenu();
+        }
+#endif
 
 
         #region UI Elements visuals
 
+#if !UNITY_6000_3_OR_NEWER
         private static VisualElement AddButton(string iconName, string tooltip, Action leftMouseClickCallback,
             Action rightMouseClickCallback = null)
         {
@@ -276,6 +285,7 @@ namespace BrunoMikoski.SelectionHistory
             element.style.marginRight = 1;
             element.style.marginLeft = 1;
         }
+#endif
 
         #endregion
     }

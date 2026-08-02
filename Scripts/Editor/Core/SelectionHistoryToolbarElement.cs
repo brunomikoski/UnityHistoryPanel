@@ -23,7 +23,8 @@ namespace BrunoMikoski.SelectionHistory
             bool canGoBack = SelectionHistoryToolbar.CanGoBack;
             var button = new MainToolbarButton(content, SelectionHistoryToolbar.GoBack)
             {
-                enabled = canGoBack
+                enabled = canGoBack,
+                populateContextMenu = SelectionHistoryToolbar.PopulateBackwardsHistory
             };
             return button;
         }
@@ -40,7 +41,8 @@ namespace BrunoMikoski.SelectionHistory
             bool canGoForward = SelectionHistoryToolbar.CanGoForward;
             var button = new MainToolbarButton(content, SelectionHistoryToolbar.GoForward)
             {
-                enabled = canGoForward
+                enabled = canGoForward,
+                populateContextMenu = SelectionHistoryToolbar.PopulateForwardHistory
             };
             return button;
         }

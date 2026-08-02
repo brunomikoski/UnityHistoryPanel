@@ -16,22 +16,22 @@ namespace BrunoMikoski.SelectionHistory
         private int pointInTime;
         public int PointInTime => pointInTime;
 
-        private bool movingInHistory;
+        private SelectionData pendingNavigationTarget;
 
         public void AddToHistory(Object[] objects)
         {
-            if (movingInHistory)
-            {
-                movingInHistory = false;
-                return;
-            }
+            SelectionData navigationTarget = pendingNavigationTarget;
+            pendingNavigationTarget = null;
 
             SelectionData item = new SelectionData(objects);
             if (!item.IsValid)
                 return;
 
-            if (selectionData.Count > 0 &&
-                selectionData[selectionData.Count - 1].Equals(item))
+            if (navigationTarget != null && navigationTarget.Equals(item))
+                return;
+
+            if (pointInTime >= 0 && pointInTime < selectionData.Count &&
+                selectionData[pointInTime].Equals(item))
                 return;
 
             if (pointInTime < selectionData.Count - 1)
@@ -48,7 +48,7 @@ namespace BrunoMikoski.SelectionHistory
 
         public void Back()
         {
-            if (pointInTime == 0)
+            if (pointInTime <= 0)
                 return;
 
             for (int i = pointInTime - 1; i >= 0; i--)
@@ -56,9 +56,7 @@ namespace BrunoMikoski.SelectionHistory
                 if (!selectionData[i].IsValid)
                     continue;
 
-                pointInTime = i;
-                movingInHistory = true;
-                selectionData[i].Select();
+                SelectAt(i);
                 break;
             }
         }
@@ -75,16 +73,21 @@ namespace BrunoMikoski.SelectionHistory
             if (i >= selectionData.Count)
                 return;
 
-            pointInTime = i;
-            movingInHistory = true;
-            selectionData[i].Select();
+            SelectAt(i);
         }
 
         public void SetPointInTime(int itemIndex)
         {
-            movingInHistory = true;
-            pointInTime = itemIndex;
-            selectionData[pointInTime].Select();
+            if (itemIndex < 0 || itemIndex >= selectionData.Count)
+                return;
+
+            SelectAt(itemIndex);
+        }
+
+        private void SelectAt(int index)
+        {
+            pointInTime = index;
+            pendingNavigationTarget = new SelectionData(selectionData[index].Select());
         }
     }
 
